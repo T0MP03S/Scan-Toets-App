@@ -1,0 +1,30 @@
+name: toets_scan_app
+description: "Toets Scan App - Automatisch nakijken van handgeschreven toetsen met AI."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  lucide_icons: ^0.257.0
+  go_router: ^14.8.1
+  http: ^1.3.0
+  provider: ^6.1.2
+  shared_preferences: ^2.3.4
+  google_fonts: ^6.2.1
+  fl_chart: ^0.70.2
+  image_picker: ^1.1.2
+  flutter_dotenv: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
