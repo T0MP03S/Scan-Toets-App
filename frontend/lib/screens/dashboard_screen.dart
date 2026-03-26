@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 import 'package:toets_scan_app/config/theme.dart';
+import 'package:toets_scan_app/providers/auth_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -18,8 +20,8 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welkom terug!',
+            Text(
+              'Welkom terug, ${context.watch<AuthProvider>().user?.fullName ?? ''}!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,

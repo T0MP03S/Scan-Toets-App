@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 import 'package:toets_scan_app/config/theme.dart';
+import 'package:toets_scan_app/providers/auth_provider.dart';
 
 class ShellScreen extends StatelessWidget {
   final Widget child;
@@ -136,7 +138,10 @@ class _SideNav extends StatelessWidget {
             icon: LucideIcons.logOut,
             label: 'Uitloggen',
             selected: false,
-            onTap: () => context.go('/login'),
+            onTap: () {
+              context.read<AuthProvider>().logout();
+              context.go('/login');
+            },
           ),
           const SizedBox(height: 16),
         ],

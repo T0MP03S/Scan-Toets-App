@@ -1,4 +1,4 @@
-import os
+import secrets
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
@@ -17,15 +17,22 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://toetsscan:toetsscan@localhost:5433/toetsscan"
 
     # JWT Authentication
-    JWT_SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION"
+    JWT_SECRET_KEY: str = secrets.token_urlsafe(32)
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # Gemini AI
     GEMINI_API_KEY: str = ""
 
+    # CORS
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
+
     # File storage
     UPLOAD_DIR: str = str(BASE_DIR / "uploads")
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     class Config:
         env_file = str(BASE_DIR / ".env")
