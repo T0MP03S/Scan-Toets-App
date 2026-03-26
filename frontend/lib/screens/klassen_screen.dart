@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class _KlassenScreenState extends State<KlassenScreen> {
   @override
   void initState() {
     super.initState();
-    _loadKlassen();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadKlassen());
   }
 
   Future<void> _loadKlassen() async {
@@ -37,8 +38,11 @@ class _KlassenScreenState extends State<KlassenScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) showAppSnackBar(context, e.toString(), type: SnackBarType.error);
+      debugPrint('Error loading klassen: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showAppSnackBar(context, e.toString(), type: SnackBarType.error);
+      }
     }
   }
 
@@ -46,6 +50,7 @@ class _KlassenScreenState extends State<KlassenScreen> {
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Nieuwe klas'),
         content: TextField(
@@ -83,6 +88,7 @@ class _KlassenScreenState extends State<KlassenScreen> {
     final controller = TextEditingController(text: klas.naam);
     final result = await showDialog<String>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Klas bewerken'),
         content: TextField(
@@ -116,6 +122,7 @@ class _KlassenScreenState extends State<KlassenScreen> {
   Future<void> _confirmDelete(KlasModel klas) async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Klas verwijderen'),
         content: Text(

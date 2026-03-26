@@ -4,7 +4,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 
 ## Status
 
-**Fase 2 — Klassenbeheer** ✅
+**Fase 3 — Master Toets Beheer** ✅
 
 ## Tech Stack
 

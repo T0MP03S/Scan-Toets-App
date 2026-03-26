@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from app.config import settings
 from app.database import engine, Base
 from app.models import User, Klas, Leerling, Toets, Resultaat
-from app.routers import auth_router, klassen_router
+from app.routers import auth_router, klassen_router, toetsen_router
 
 
 @asynccontextmanager
@@ -40,6 +40,7 @@ app.add_middleware(
 
 app.include_router(auth_router.router)
 app.include_router(klassen_router.router)
+app.include_router(toetsen_router.router)
 
 
 @app.exception_handler(Exception)

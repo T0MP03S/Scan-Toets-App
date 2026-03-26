@@ -2,6 +2,20 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.4.0] - 2026-03-26
+
+### Fase 3 — Master Toets Beheer
+- Toets model uitgebreid: klas_id, beschrijving, totaal_punten
+- CRUD API endpoints voor toetsen (aanmaken, bewerken, verwijderen, ophalen)
+- Antwoordmodel API: handmatig invoeren per vraag (nummer, vraag, antwoord, punten)
+- Totaal punten worden automatisch berekend uit antwoordmodel
+- Flutter toetsen-overzicht met zoekbalk, klas-dropdown, CRUD
+- Flutter toets-detailscherm met antwoordmodel weergave
+- Flutter antwoordmodel-editor: vragen toevoegen/verwijderen/bewerken
+- Scanflow ontwerp gedocumenteerd (privacy-first, AVG-compliant)
+- Geen leerlingnamen naar externe AI — handmatige leerling-selectie
+- API documentatie bijgewerkt
+
 ## [0.3.0] - 2026-03-26
 
 ### Fase 2 — Klassenbeheer

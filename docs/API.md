@@ -134,3 +134,65 @@ Leerling bewerken. **Body:** `{ "voornaam": "Jan", "achternaam": "de Vries" }`
 
 ### `DELETE /klassen/{klas_id}/leerlingen/{id}`
 Leerling verwijderen. **Response:** `204`
+
+---
+
+## Toetsen
+
+Alle toetsen-endpoints vereisen `Authorization: Bearer <token>`.
+
+### `GET /toetsen`
+Alle toetsen van de ingelogde docent ophalen.
+
+**Query parameters:**
+- `klas_id` (optioneel) — filter op klas
+- `search` (optioneel) — zoek op titel of vak
+
+**Response:** `200`
+```json
+[{
+  "id": 1, "titel": "Rekenen Week 12", "vak": "Rekenen",
+  "beschrijving": "Optellen en aftrekken", "klas_id": 1, "klas_naam": "Groep 6A",
+  "totaal_punten": 7, "aantal_vragen": 3, "created_at": "..."
+}]
+```
+
+### `POST /toetsen`
+Nieuwe toets aanmaken.
+
+**Body:**
+```json
+{ "titel": "Rekenen Week 12", "vak": "Rekenen", "beschrijving": "...", "klas_id": 1 }
+```
+**Response:** `201`
+
+### `GET /toetsen/{id}`
+Enkele toets ophalen (inclusief antwoordmodel). **Response:** `200`
+
+### `PUT /toetsen/{id}`
+Toets bewerken. **Body:** `{ "titel": "...", "vak": "...", "beschrijving": "...", "klas_id": 1 }`  
+**Response:** `200`
+
+### `DELETE /toetsen/{id}`
+Toets en alle bijbehorende resultaten verwijderen. **Response:** `204`
+
+---
+
+## Antwoordmodel
+
+### `PUT /toetsen/{id}/antwoordmodel`
+Antwoordmodel instellen of bijwerken (handmatige invoer).
+
+**Body:**
+```json
+{
+  "vragen": [
+    { "nummer": 1, "vraag": "12 + 15 = ?", "correct_antwoord": "27", "punten": 2 },
+    { "nummer": 2, "vraag": "45 - 18 = ?", "correct_antwoord": "27", "punten": 2 }
+  ]
+}
+```
+**Response:** `200` — retourneert de volledige toets met `totaal_punten` automatisch berekend
+
+### `DELETE /toetsen/{id}/antwoordmodel`
+Antwoordmodel verwijderen. **Response:** `204`

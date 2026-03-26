@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLeerlingen();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLeerlingen());
   }
 
   Future<void> _loadLeerlingen() async {
@@ -39,8 +40,11 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) showAppSnackBar(context, e.toString(), type: SnackBarType.error);
+      debugPrint('Error loading leerlingen: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showAppSnackBar(context, e.toString(), type: SnackBarType.error);
+      }
     }
   }
 
@@ -49,6 +53,7 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
     final achternaamController = TextEditingController();
     final result = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Leerling toevoegen'),
         content: Column(
@@ -99,6 +104,7 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
     final achternaamController = TextEditingController(text: leerling.achternaam);
     final result = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Leerling bewerken'),
         content: Column(
@@ -145,6 +151,7 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
   Future<void> _confirmDelete(LeerlingModel leerling) async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Leerling verwijderen'),
         content: Text('Weet je zeker dat je "${leerling.volledigeNaam}" wilt verwijderen?'),
