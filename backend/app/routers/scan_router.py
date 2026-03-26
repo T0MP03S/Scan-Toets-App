@@ -205,6 +205,69 @@ async def scan_status(
     }
 
 
+@router.put("/resultaat/{resultaat_id}/overrule")
+async def overrule_resultaat(
+    resultaat_id: int,
+    cijfer: float,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Manually override a grading result."""
+    result = await db.execute(
+        select(Resultaat)
+        .join(Toets, Toets.id == Resultaat.toets_id)
+        .where(Resultaat.id == resultaat_id, Toets.docent_id == current_user.id)
+    )
+    resultaat = result.scalar_one_or_none()
+    if not resultaat:
+        raise HTTPException(status_code=404, detail="Resultaat niet gevonden")
+
+    resultaat.cijfer = cijfer
+    resultaat.is_overruled = True
+    await db.flush()
+    await db.refresh(resultaat)
+
+    return {
+        "id": resultaat.id,
+        "cijfer": resultaat.cijfer,
+        "is_overruled": resultaat.is_overruled,
+    }
+
+
+@router.get("/resultaat/{resultaat_id}")
+async def get_resultaat(
+    resultaat_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get a single grading result with full feedback."""
+    result = await db.execute(
+        select(Resultaat, Leerling.voornaam, Leerling.achternaam, Toets.titel)
+        .join(Toets, Toets.id == Resultaat.toets_id)
+        .join(Leerling, Leerling.id == Resultaat.leerling_id)
+        .where(Resultaat.id == resultaat_id, Toets.docent_id == current_user.id)
+    )
+    row = result.one_or_none()
+    if not row:
+        raise HTTPException(status_code=404, detail="Resultaat niet gevonden")
+
+    r, voornaam, achternaam, toets_titel = row
+    return {
+        "id": r.id,
+        "leerling": f"{voornaam} {achternaam}",
+        "leerling_id": r.leerling_id,
+        "toets": toets_titel,
+        "toets_id": r.toets_id,
+        "cijfer": r.cijfer,
+        "score": r.score,
+        "max_score": r.max_score,
+        "confidence": r.confidence,
+        "is_overruled": r.is_overruled,
+        "feedback": r.feedback_json,
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+    }
+
+
 # ── Helpers ───────────────────────────────────────────────────
 
 async def _get_owned_toets(db: AsyncSession, toets_id: int, docent_id: int) -> Toets:

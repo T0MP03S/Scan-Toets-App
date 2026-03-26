@@ -7,6 +7,7 @@ import 'package:toets_scan_app/config/theme.dart';
 import 'package:toets_scan_app/models/toets_model.dart';
 import 'package:toets_scan_app/services/api_service.dart';
 import 'package:toets_scan_app/widgets/snackbar_widget.dart';
+import 'package:toets_scan_app/screens/toets_analyse_screen.dart';
 
 class ToetsDetailScreen extends StatefulWidget {
   final int toetsId;
@@ -102,6 +103,19 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          if (_toets != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => ToetsAnalyseScreen(toetsId: widget.toetsId)),
+                ),
+                icon: const Icon(LucideIcons.barChart3, size: 16),
+                label: const Text('Analyse'),
+              ),
+            ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

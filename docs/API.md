@@ -264,6 +264,20 @@ Laatste 10 nakijkresultaten.
 [{ "id": 1, "leerling": "Jan de Vries", "toets": "Rekenen Week 12", "cijfer": 7.5, "score": 6, "max_score": 7, "confidence": 0.92, "created_at": "..." }]
 ```
 
+### `PUT /scan/resultaat/{resultaat_id}/overrule`
+Cijfer handmatig aanpassen (overrulen).
+
+**Query parameters:** `cijfer` (float, 1-10)  
+**Response:** `200`
+```json
+{ "id": 1, "cijfer": 8.0, "is_overruled": true }
+```
+
+### `GET /scan/resultaat/{resultaat_id}`
+Enkel resultaat ophalen met volledige feedback.
+
+**Response:** `200`
+
 ### `GET /dashboard/toets-analyse/{toets_id}`
 Gedetailleerde analyse van een toets: gemiddelden, score-verdeling, foutdiagnose per vraag.
 

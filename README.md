@@ -4,7 +4,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 
 ## Status
 
-**Fase 5 — Dashboard & Analyse** ✅
+**Fase 6 — Human-in-the-loop & Polish** ✅
 
 ## Tech Stack
 

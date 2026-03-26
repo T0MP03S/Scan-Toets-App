@@ -2,6 +2,19 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.7.0] - 2026-03-26
+
+### Fase 6 — Human-in-the-loop & Polish
+- Resultaat overrule API: leerkracht kan elk cijfer handmatig aanpassen
+- Resultaat detail API: volledig resultaat ophalen met feedback
+- Toets-analyse scherm met grafieken (fl_chart):
+  - Cijferverdeling staafdiagram
+  - Analyse per vraag met correct-percentage en voortgangsbalk
+  - Meest gemaakte fout per vraag
+  - Resultaten per leerling met kleurgecodeerde cijfers
+- Analyse knop op toets-detailscherm
+- API documentatie bijgewerkt
+
 ## [0.6.0] - 2026-03-26
 
 ### Fase 5 — Dashboard & Analyse
