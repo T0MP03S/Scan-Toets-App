@@ -4,7 +4,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 
 ## Status
 
-**Fase 4 — Scan-straat (Core AI)** ✅
+**Fase 5 — Dashboard & Analyse** ✅
 
 ## Tech Stack
 

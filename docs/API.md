@@ -241,3 +241,40 @@ Herken antwoordmodel uit foto('s) met AI. Vereist `multipart/form-data`.
 
 **Body:** `files` (meerdere JPG/PNG bestanden)  
 **Response:** `200` — geëxtraheerde vragen in JSON formaat
+
+---
+
+## Dashboard & Analyse
+
+### `GET /dashboard/stats`
+Overzichtsstatistieken voor de ingelogde docent.
+
+**Response:** `200`
+```json
+{ "klassen": 3, "leerlingen": 78, "toetsen": 12, "nagekeken": 45 }
+```
+
+### `GET /dashboard/recent-results`
+Laatste 10 nakijkresultaten.
+
+**Query parameters:** `limit` (optioneel, default 10)
+
+**Response:** `200`
+```json
+[{ "id": 1, "leerling": "Jan de Vries", "toets": "Rekenen Week 12", "cijfer": 7.5, "score": 6, "max_score": 7, "confidence": 0.92, "created_at": "..." }]
+```
+
+### `GET /dashboard/toets-analyse/{toets_id}`
+Gedetailleerde analyse van een toets: gemiddelden, score-verdeling, foutdiagnose per vraag.
+
+**Response:** `200`
+```json
+{
+  "toets_titel": "Rekenen Week 12", "toets_vak": "Rekenen",
+  "aantal_resultaten": 25, "gemiddeld_cijfer": 7.2,
+  "hoogste_cijfer": 9.5, "laagste_cijfer": 3.0,
+  "score_verdeling": { "7-8": 8, "6-7": 6, "5-6": 4 },
+  "vraag_analyse": [{ "vraag_nummer": 1, "correct_percentage": 85, "meest_gemaakte_fout": "26" }],
+  "resultaten": [{ "leerling": "Jan de Vries", "cijfer": 7.5, "score": 6, "max_score": 7 }]
+}
+```

@@ -2,6 +2,19 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.6.0] - 2026-03-26
+
+### Fase 5 — Dashboard & Analyse
+- Dashboard API: statistieken (klassen, leerlingen, toetsen, nagekeken)
+- Dashboard API: recente resultaten met cijfer en confidence
+- Dashboard API: toets-analyse met gemiddelden, score-verdeling, foutdiagnose per vraag
+- Flutter dashboard met live data uit API (geen hardcoded waarden meer)
+- Recente resultaten lijst met kleurgecodeerde cijfers
+- Waarschuwingsicoon bij lage AI-zekerheid
+- Pull-to-refresh op dashboard
+- "Aan de slag" gids wanneer er nog geen resultaten zijn
+- API documentatie bijgewerkt
+
 ## [0.5.0] - 2026-03-26
 
 ### Fase 4 — Scan-straat (Core AI Feature)
