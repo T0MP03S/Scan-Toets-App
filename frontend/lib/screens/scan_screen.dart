@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -26,7 +25,6 @@ class _ScanScreenState extends State<ScanScreen> {
   // Step 0: select klas + toets
   List<KlasModel> _klassen = [];
   List<ToetsListModel> _toetsen = [];
-  KlasModel? _selectedKlas;
   ToetsListModel? _selectedToets;
 
   // Step 1: scan status (student list)
@@ -262,7 +260,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     decoration: const InputDecoration(labelText: 'Klas', prefixIcon: Icon(LucideIcons.users, size: 18)),
                     items: _klassen.map((k) => DropdownMenuItem(value: k, child: Text(k.naam))).toList(),
                     onChanged: (k) {
-                      setState(() { _selectedKlas = k; _selectedToets = null; _toetsen = []; });
+                      setState(() { _selectedToets = null; _toetsen = []; });
                       if (k != null) _loadToetsen(k.id);
                     },
                   ),
@@ -437,7 +435,7 @@ class _ScanScreenState extends State<ScanScreen> {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: _isUploading ? null : _pickImage,
-                child: Container(
+                child: SizedBox(
                   height: 200,
                   width: double.infinity,
                   child: Column(

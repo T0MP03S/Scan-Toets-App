@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -40,42 +39,6 @@ class _ToetsAnalyseScreenState extends State<ToetsAnalyseScreen> {
         showAppSnackBar(context, e.toString(), type: SnackBarType.error);
       }
     }
-  }
-
-  Future<void> _overrule(int index) async {
-    final resultaten = List<Map<String, dynamic>>.from(_data?['resultaten'] ?? []);
-    if (index >= resultaten.length) return;
-    final r = resultaten[index];
-    final controller = TextEditingController(text: '${r['cijfer'] ?? ''}');
-
-    final newCijfer = await showDialog<double>(
-      context: context,
-      useRootNavigator: true,
-      builder: (ctx) => AlertDialog(
-        title: Text('Cijfer aanpassen — ${r['leerling']}'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Nieuw cijfer (1-10)', prefixIcon: Icon(LucideIcons.pencil, size: 18)),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Annuleren')),
-          ElevatedButton(
-            onPressed: () {
-              final val = double.tryParse(controller.text);
-              if (val != null && val >= 1 && val <= 10) Navigator.of(ctx).pop(val);
-            },
-            child: const Text('Opslaan'),
-          ),
-        ],
-      ),
-    );
-
-    if (newCijfer == null) return;
-
-    // We need the resultaat ID — fetch from recent-results or use the scan status
-    // For now, show a success message. The overrule will work through the result detail screen.
-    showAppSnackBar(context, 'Cijfer aangepast naar ${newCijfer.toStringAsFixed(1)}', type: SnackBarType.success);
   }
 
   @override

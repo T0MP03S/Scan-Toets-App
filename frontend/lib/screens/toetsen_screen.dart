@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class _ToetsenScreenState extends State<ToetsenScreen> {
   List<KlasModel> _klassen = [];
   bool _isLoading = true;
   String _search = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -225,7 +227,8 @@ class _ToetsenScreenState extends State<ToetsenScreen> {
               ),
               onChanged: (value) {
                 setState(() => _search = value);
-                _loadToetsen();
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 400), _loadToetsen);
               },
             ),
           ),

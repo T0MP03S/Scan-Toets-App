@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
   List<LeerlingModel> _leerlingen = [];
   bool _isLoading = true;
   String _search = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -219,7 +221,8 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
               ),
               onChanged: (value) {
                 setState(() => _search = value);
-                _loadLeerlingen();
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 400), _loadLeerlingen);
               },
             ),
           ),

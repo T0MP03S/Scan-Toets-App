@@ -12,6 +12,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? _user;
   String? _token;
   bool _isLoading = false;
+  bool _isInitialized = false;
   String? _error;
 
   AuthProvider(this._apiService) {
@@ -22,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get user => _user;
   bool get isAuthenticated => _token != null;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
   String? get error => _error;
 
   Future<void> _loadToken() async {
@@ -31,11 +33,12 @@ class AuthProvider extends ChangeNotifier {
       _apiService.setToken(_token);
       try {
         _user = await _authService.getMe();
-        notifyListeners();
       } catch (_) {
         await _clearToken();
       }
     }
+    _isInitialized = true;
+    notifyListeners();
   }
 
   Future<void> _saveToken(String token) async {

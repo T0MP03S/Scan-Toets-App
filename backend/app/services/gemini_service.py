@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -21,7 +22,7 @@ def _get_client() -> genai.Client:
     return _client
 
 
-def grade_test(image_paths: list[str], master_data: dict) -> dict:
+async def grade_test(image_paths: list[str], master_data: dict) -> dict:
     """
     Grade a student's test using Gemini Vision.
 
@@ -56,7 +57,8 @@ def grade_test(image_paths: list[str], master_data: dict) -> dict:
 
     contents.append(types.Part.from_text(text=prompt))
 
-    response = client.models.generate_content(
+    response = await asyncio.to_thread(
+        client.models.generate_content,
         model=settings.GEMINI_MODEL,
         contents=contents,
         config=types.GenerateContentConfig(
@@ -75,7 +77,7 @@ def grade_test(image_paths: list[str], master_data: dict) -> dict:
     return result
 
 
-def extract_answer_model_from_image(image_paths: list[str]) -> dict:
+async def extract_answer_model_from_image(image_paths: list[str]) -> dict:
     """
     Extract an answer model from photos of a blank/filled answer key.
 
@@ -115,7 +117,8 @@ Regels:
 
     contents.append(types.Part.from_text(text=prompt))
 
-    response = client.models.generate_content(
+    response = await asyncio.to_thread(
+        client.models.generate_content,
         model=settings.GEMINI_MODEL,
         contents=contents,
         config=types.GenerateContentConfig(

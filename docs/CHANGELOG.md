@@ -2,6 +2,19 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.7.1] - 2026-03-26
+
+### Bugfixes & Optimalisaties
+- **CRITICAL**: JWT_SECRET_KEY werd bij elke herstart opnieuw gegenereerd — tokens bleven nu geldig
+- Auth guard: je kunt niet meer naar /dashboard zonder in te loggen
+- Page refresh geeft geen lege pagina meer (auth state wordt correct hersteld)
+- Landingspagina toegevoegd op / met uitleg over de app
+- Gemini AI calls draaien nu async (blokkeerden de server)
+- Zoekbalken hebben nu debounce (400ms) — geen API-spam meer bij typen
+- Onnodige imports verwijderd (flutter/foundation.dart)
+- Unused code opgeruimd (scan_screen, toets_analyse_screen)
+- .env.example bijgewerkt met UPLOAD_DIR
+
 ## [0.7.0] - 2026-03-26
 
 ### Fase 6 — Human-in-the-loop & Polish

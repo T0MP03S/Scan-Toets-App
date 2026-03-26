@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ class _KlassenScreenState extends State<KlassenScreen> {
   List<KlasModel> _klassen = [];
   bool _isLoading = true;
   String _search = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -189,7 +191,8 @@ class _KlassenScreenState extends State<KlassenScreen> {
               ),
               onChanged: (value) {
                 setState(() => _search = value);
-                _loadKlassen();
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 400), _loadKlassen);
               },
             ),
           ),

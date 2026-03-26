@@ -86,7 +86,7 @@ async def grade_scan(
 
     # Call Gemini
     try:
-        ai_result = grade_test(redacted_paths, toets.master_data_json)
+        ai_result = await grade_test(redacted_paths, toets.master_data_json)
     except Exception as e:
         logger.error(f"Gemini grading failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"AI nakijken mislukt: {e}")
@@ -154,7 +154,7 @@ async def extract_antwoordmodel(
         paths.append(str(path))
 
     try:
-        result = extract_answer_model_from_image(paths)
+        result = await extract_answer_model_from_image(paths)
     except Exception as e:
         logger.error(f"Answer model extraction failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Antwoordmodel herkenning mislukt: {e}")
