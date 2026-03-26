@@ -196,3 +196,48 @@ Antwoordmodel instellen of bijwerken (handmatige invoer).
 
 ### `DELETE /toetsen/{id}/antwoordmodel`
 Antwoordmodel verwijderen. **Response:** `204`
+
+---
+
+## Scan-straat
+
+### `POST /scan/upload`
+Upload een pagina-foto. Vereist `multipart/form-data`.
+
+**Body:** `file` (JPG/PNG)  
+**Response:** `200`
+```json
+{ "filename": "abc123.jpg", "path": "/uploads/scans/1/abc123.jpg" }
+```
+
+### `POST /scan/grade`
+Laat een toets nakijken door AI. PII wordt automatisch geredacteerd.
+
+**Body:**
+```json
+{
+  "toets_id": 1,
+  "leerling_id": 1,
+  "filenames": ["abc123.jpg", "def456.jpg"]
+}
+```
+**Response:** `200` — resultaat met cijfer, score, feedback per vraag, confidence
+
+### `GET /scan/status/{toets_id}`
+Scan-voortgang ophalen: welke leerlingen zijn al nagekeken.
+
+**Response:** `200`
+```json
+{
+  "toets_id": 1,
+  "totaal_leerlingen": 28,
+  "gescand": 12,
+  "items": [{ "leerling_id": 1, "voornaam": "Jan", "achternaam": "de Vries", "status": "nagekeken", "cijfer": 7.5, "confidence": 0.92 }]
+}
+```
+
+### `POST /scan/extract-antwoordmodel`
+Herken antwoordmodel uit foto('s) met AI. Vereist `multipart/form-data`.
+
+**Body:** `files` (meerdere JPG/PNG bestanden)  
+**Response:** `200` — geëxtraheerde vragen in JSON formaat

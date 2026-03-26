@@ -18,6 +18,8 @@ class ApiService {
 
   ApiService({String? baseUrl}) : baseUrl = baseUrl ?? AppConstants.apiBaseUrl;
 
+  String? get token => _token;
+
   void setToken(String? token) {
     _token = token;
   }

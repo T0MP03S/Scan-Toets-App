@@ -2,6 +2,21 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.5.0] - 2026-03-26
+
+### Fase 4 — Scan-straat (Core AI Feature)
+- Gemini 3 Flash (Vision) integratie voor toets-nakijking
+- google-genai SDK geïnstalleerd en geconfigureerd
+- PII-redactie service: naam bovenaan foto wordt automatisch zwartgemaakt
+- Scan API: upload pagina’s, AI nakijken, voortgangsstatus
+- Antwoordmodel extractie uit foto’s via AI
+- Flutter scan-straat: 4-stappen flow (klas/toets kiezen → leerling selecteren → foto’s uploaden → resultaat)
+- Voortgangsbalk en leerlingenlijst met scan-status
+- Resultaatscherm met cijfer, score per vraag, confidence indicator
+- Waarschuwing bij lage AI-zekerheid (< 80%)
+- Privacy-first: geen leerlingnamen naar externe AI
+- API documentatie bijgewerkt
+
 ## [0.4.0] - 2026-03-26
 
 ### Fase 3 — Master Toets Beheer

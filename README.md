@@ -4,7 +4,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 
 ## Status
 
-**Fase 3 — Master Toets Beheer** ✅
+**Fase 4 — Scan-straat (Core AI)** ✅
 
 ## Tech Stack
 
@@ -13,7 +13,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 | Frontend | Flutter Web (later iOS/Android) |
 | Backend | Python FastAPI |
 | Database | PostgreSQL 16 (lokaal via Docker) |
-| AI Engine | Google Gemini 3 Flash / Pro Vision |
+| AI Engine | Google Gemini 3 Flash (Vision) |
 | Icons | Lucide |
 
 ## Projectstructuur
