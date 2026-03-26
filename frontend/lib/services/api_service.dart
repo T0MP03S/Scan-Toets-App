@@ -30,18 +30,17 @@ class ApiService {
     return headers;
   }
 
-  Future<Map<String, dynamic>> _handleResponse(http.Response response) async {
+  dynamic _handleResponse(http.Response response) {
+    if (response.statusCode == 204) return null;
     final body = jsonDecode(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;
     }
-    throw ApiException(
-      response.statusCode,
-      body['detail'] ?? 'Er is een onbekende fout opgetreden',
-    );
+    final detail = body is Map ? (body['detail'] ?? 'Onbekende fout') : 'Onbekende fout';
+    throw ApiException(response.statusCode, detail.toString());
   }
 
-  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> data) async {
+  Future<dynamic> post(String path, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl$path'),
       headers: _headers,
@@ -50,7 +49,7 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  Future<Map<String, dynamic>> get(String path) async {
+  Future<dynamic> get(String path) async {
     final response = await http.get(
       Uri.parse('$baseUrl$path'),
       headers: _headers,
@@ -58,7 +57,7 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  Future<Map<String, dynamic>> put(String path, Map<String, dynamic> data) async {
+  Future<dynamic> put(String path, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$baseUrl$path'),
       headers: _headers,
@@ -67,7 +66,7 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  Future<Map<String, dynamic>> delete(String path) async {
+  Future<dynamic> delete(String path) async {
     final response = await http.delete(
       Uri.parse('$baseUrl$path'),
       headers: _headers,

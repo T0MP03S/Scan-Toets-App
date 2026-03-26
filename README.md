@@ -4,7 +4,7 @@ Een cross-platform applicatie waarmee leerkrachten handgeschreven toetsen automa
 
 ## Status
 
-**Fase 1 — Authenticatie & Basis UI** ✅
+**Fase 2 — Klassenbeheer** ✅
 
 ## Tech Stack
 

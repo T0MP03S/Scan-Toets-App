@@ -2,6 +2,18 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.3.0] - 2026-03-26
+
+### Fase 2 — Klassenbeheer
+- CRUD API endpoints voor klassen (aanmaken, bewerken, verwijderen, ophalen)
+- CRUD API endpoints voor leerlingen per klas
+- Zoekfunctie op klassen en leerlingen (query parameter)
+- Cascade delete: klas verwijderen verwijdert ook leerlingen
+- Flutter klassen-scherm met lijst, zoekbalk, aanmaken/bewerken/verwijderen dialogen
+- Flutter leerlingen-scherm per klas met volledige CRUD
+- ApiService geüpdatet voor list-responses en 204 no-content
+- API documentatie bijgewerkt
+
 ## [0.2.0] - 2026-03-26
 
 ### Fase 1 — Authenticatie & Basis UI

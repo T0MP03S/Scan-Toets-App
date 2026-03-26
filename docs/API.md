@@ -73,3 +73,64 @@ Huidige ingelogde gebruiker ophalen. Vereist Bearer token.
 
 **Fouten:**
 - `401` — Ongeldige of verlopen token
+
+---
+
+## Klassen
+
+Alle klassen-endpoints vereisen `Authorization: Bearer <token>`.
+
+### `GET /klassen`
+Alle klassen van de ingelogde docent ophalen.
+
+**Query parameters:** `search` (optioneel) — zoek op klasnaam
+
+**Response:** `200`
+```json
+[{ "id": 1, "naam": "Groep 6A", "docent_id": 1, "created_at": "...", "leerling_count": 25 }]
+```
+
+### `POST /klassen`
+Nieuwe klas aanmaken.
+
+**Body:** `{ "naam": "Groep 6A" }`  
+**Response:** `201`
+
+### `GET /klassen/{id}`
+Enkele klas ophalen. **Response:** `200`
+
+### `PUT /klassen/{id}`
+Klasnaam wijzigen.
+
+**Body:** `{ "naam": "Groep 6B" }`  
+**Response:** `200`
+
+### `DELETE /klassen/{id}`
+Klas en alle bijbehorende leerlingen verwijderen. **Response:** `204`
+
+---
+
+## Leerlingen
+
+### `GET /klassen/{klas_id}/leerlingen`
+Alle leerlingen van een klas ophalen.
+
+**Query parameters:** `search` (optioneel) — zoek op voor-/achternaam
+
+**Response:** `200`
+```json
+[{ "id": 1, "voornaam": "Jan", "achternaam": "de Vries", "klas_id": 1, "created_at": "..." }]
+```
+
+### `POST /klassen/{klas_id}/leerlingen`
+Leerling toevoegen aan een klas.
+
+**Body:** `{ "voornaam": "Jan", "achternaam": "de Vries" }`  
+**Response:** `201`
+
+### `PUT /klassen/{klas_id}/leerlingen/{id}`
+Leerling bewerken. **Body:** `{ "voornaam": "Jan", "achternaam": "de Vries" }`  
+**Response:** `200`
+
+### `DELETE /klassen/{klas_id}/leerlingen/{id}`
+Leerling verwijderen. **Response:** `204`

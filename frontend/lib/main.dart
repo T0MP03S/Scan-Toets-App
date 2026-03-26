@@ -12,6 +12,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        Provider<ApiService>.value(value: apiService),
         ChangeNotifierProvider(create: (_) => AuthProvider(apiService)),
       ],
       child: const ToetsScanApp(),
