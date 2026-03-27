@@ -2,7 +2,8 @@ import logging
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Body
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,6 +23,12 @@ router = APIRouter(prefix="/scan", tags=["Scan"])
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 MAX_PAGES = 4
+
+
+class GradeRequest(BaseModel):
+    toets_id: int
+    leerling_id: int
+    filenames: list[str]
 
 
 @router.post("/upload")
@@ -48,9 +55,7 @@ async def upload_page(
 
 @router.post("/grade")
 async def grade_scan(
-    toets_id: int,
-    leerling_id: int,
-    filenames: list[str],
+    request: GradeRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -58,6 +63,10 @@ async def grade_scan(
     Grade a student's test. Expects uploaded filenames from /scan/upload.
     Redacts PII, sends to Gemini, and stores the result.
     """
+    toets_id = request.toets_id
+    leerling_id = request.leerling_id
+    filenames = request.filenames
+    
     if len(filenames) > MAX_PAGES:
         raise HTTPException(status_code=400, detail=f"Maximaal {MAX_PAGES} pagina's per leerling")
     if not filenames:
