@@ -27,18 +27,23 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
 
   Future<void> _loadToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('auth_token');
-    if (_token != null) {
-      _apiService.setToken(_token);
-      try {
-        _user = await _authService.getMe();
-      } catch (_) {
-        await _clearToken();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _token = prefs.getString('auth_token');
+      if (_token != null) {
+        _apiService.setToken(_token);
+        try {
+          _user = await _authService.getMe();
+        } catch (_) {
+          await _clearToken();
+        }
       }
+      _isInitialized = true;
+      notifyListeners();
+    } catch (_) {
+      _isInitialized = true;
+      notifyListeners();
     }
-    _isInitialized = true;
-    notifyListeners();
   }
 
   Future<void> _saveToken(String token) async {

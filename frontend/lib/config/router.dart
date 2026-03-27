@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import 'package:toets_scan_app/providers/auth_provider.dart';
 import 'package:toets_scan_app/screens/landing_screen.dart';
@@ -22,16 +21,20 @@ GoRouter buildRouter(AuthProvider authProvider) {
     redirect: (context, state) {
       final isInitialized = authProvider.isInitialized;
       final isLoggedIn = authProvider.isAuthenticated;
-      final location = state.uri.toString();
+      final path = state.uri.path;
 
-      final publicRoutes = ['/', '/login'];
-      final isPublicRoute = publicRoutes.contains(location);
-
+      // Wait for auth state to load
       if (!isInitialized) return null;
 
-      if (!isLoggedIn && !isPublicRoute) return '/login';
+      // Public routes that don't need auth
+      if (path == '/' || path == '/login') {
+        // If logged in, redirect away from public routes to dashboard
+        if (isLoggedIn) return '/dashboard';
+        return null;
+      }
 
-      if (isLoggedIn && (location == '/login' || location == '/')) return '/dashboard';
+      // Protected routes: must be logged in
+      if (!isLoggedIn) return '/login';
 
       return null;
     },
@@ -40,7 +43,9 @@ GoRouter buildRouter(AuthProvider authProvider) {
         path: '/',
         builder: (context, state) {
           if (!authProvider.isInitialized) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
           return const LandingScreen();
         },

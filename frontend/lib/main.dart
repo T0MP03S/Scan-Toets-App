@@ -8,6 +8,8 @@ import 'package:toets_scan_app/providers/auth_provider.dart';
 import 'package:toets_scan_app/services/api_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final apiService = ApiService();
   final authProvider = AuthProvider(apiService);
 
