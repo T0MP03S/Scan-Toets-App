@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'package:toets_scan_app/config/theme.dart';
 import 'package:toets_scan_app/models/toets_model.dart';
@@ -60,6 +63,89 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
     );
 
     if (result == true) _loadToets();
+  }
+
+  Future<void> _scanAntwoordmodel() async {
+    if (_toets == null) return;
+
+    final picker = ImagePicker();
+    final images = await picker.pickMultiImage();
+    
+    if (images.isEmpty) return;
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Antwoordmodel wordt gescand...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final api = context.read<ApiService>();
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${api.baseUrl}/scan/extract-answer-model'),
+      );
+      request.headers['Authorization'] = 'Bearer ${api.token}';
+
+      for (final image in images) {
+        final bytes = await image.readAsBytes();
+        request.files.add(http.MultipartFile.fromBytes(
+          'files',
+          bytes,
+          filename: image.name,
+        ));
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(responseBody);
+        final vragen = (data['vragen'] as List).map((v) => VraagModel(
+          nummer: v['nummer'],
+          vraag: v['vraag'] ?? 'Vraag ${v['nummer']}',
+          correctAntwoord: v['correct_antwoord'],
+          punten: v['punten'] ?? 1,
+        )).toList();
+
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (_) => _AntwoordmodelEditor(
+              toetsId: widget.toetsId,
+              existingVragen: vragen,
+            ),
+          ),
+        );
+
+        if (result == true) _loadToets();
+      } else {
+        final error = json.decode(responseBody);
+        if (mounted) showAppSnackBar(context, error['detail'] ?? 'Scan mislukt', type: SnackBarType.error);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        showAppSnackBar(context, 'Fout bij scannen: $e', type: SnackBarType.error);
+      }
+    }
   }
 
   Future<void> _deleteAntwoordmodel() async {
@@ -179,6 +265,13 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
                       icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.error),
                       label: const Text('Verwijderen', style: TextStyle(color: AppColors.error)),
                     ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: _scanAntwoordmodel,
+                    icon: const Icon(LucideIcons.camera, size: 16),
+                    label: const Text('Scannen'),
+                  ),
+                  const SizedBox(width: 8),
                   ElevatedButton.icon(
                     onPressed: _openAntwoordmodelEditor,
                     icon: Icon(toets.heeftAntwoordmodel ? LucideIcons.pencil : LucideIcons.plus, size: 16),
@@ -205,7 +298,7 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Voer de vragen en antwoorden in zodat de AI straks kan nakijken.',
+                        'Voer de vragen en antwoorden in of scan een antwoordmodel.',
                         style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                         textAlign: TextAlign.center,
                       ),

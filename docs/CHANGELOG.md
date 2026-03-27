@@ -2,6 +2,14 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.7.2] - 2026-03-27
+
+### Nieuwe features
+- **Antwoordmodel scannen**: Je kunt nu een foto van het antwoordmodel maken en de AI herkent automatisch de vragen en antwoorden
+  - Scan knop toegevoegd naast "Invoeren" en "Bewerken" in toets detail
+  - Ondersteunt zowel volledige vragen als alleen antwoorden (dan worden vragen genummerd)
+  - Gescande data wordt geladen in de editor zodat je het nog kunt aanpassen
+
 ## [0.7.1] - 2026-03-27
 
 ### Bugfixes & Optimalisaties
