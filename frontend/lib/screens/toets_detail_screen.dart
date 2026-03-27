@@ -74,6 +74,8 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
     if (images.isEmpty) return;
 
     if (!mounted) return;
+    
+    final dialogContext = context;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -115,7 +117,7 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
       final responseBody = await response.stream.bytesToString();
       
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(dialogContext, rootNavigator: true).pop();
 
       if (response.statusCode == 200) {
         final data = json.decode(responseBody);
@@ -142,7 +144,7 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(dialogContext, rootNavigator: true).pop();
         showAppSnackBar(context, 'Fout bij scannen: $e', type: SnackBarType.error);
       }
     }
