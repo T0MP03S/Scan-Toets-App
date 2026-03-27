@@ -98,7 +98,7 @@ class _ToetsDetailScreenState extends State<ToetsDetailScreen> {
       final api = context.read<ApiService>();
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('${api.baseUrl}/scan/extract-answer-model'),
+        Uri.parse('${api.baseUrl}/scan/extract-antwoordmodel'),
       );
       request.headers['Authorization'] = 'Bearer ${api.token}';
 
