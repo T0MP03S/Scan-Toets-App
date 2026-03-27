@@ -20,6 +20,69 @@ class ShellScreen extends StatelessWidget {
     return 0;
   }
 
+  void _showMobileMenu(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              if (auth.user != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: AppColors.primary,
+                        radius: 20,
+                        child: Text(
+                          (auth.user!.fullName.isNotEmpty ? auth.user!.fullName[0] : '?').toUpperCase(),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(auth.user!.fullName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                          Text(auth.user!.email, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              const Divider(height: 24),
+              ListTile(
+                leading: const Icon(LucideIcons.logOut, color: AppColors.error),
+                title: const Text('Uitloggen', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  auth.logout();
+                  context.go('/login');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
@@ -40,7 +103,13 @@ class ShellScreen extends StatelessWidget {
           ? null
           : _BottomNav(
               selectedIndex: index,
-              onTap: (i) => _navigate(context, i),
+              onTap: (i) {
+                if (i == 4) {
+                  _showMobileMenu(context);
+                } else {
+                  _navigate(context, i);
+                }
+              },
             ),
     );
   }
@@ -209,7 +278,7 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      selectedIndex: selectedIndex,
+      selectedIndex: selectedIndex > 3 ? 0 : selectedIndex,
       onDestinationSelected: onTap,
       backgroundColor: AppColors.surface,
       indicatorColor: AppColors.primary.withValues(alpha: 0.15),
@@ -229,6 +298,10 @@ class _BottomNav extends StatelessWidget {
         NavigationDestination(
           icon: Icon(LucideIcons.camera),
           label: 'Scannen',
+        ),
+        NavigationDestination(
+          icon: Icon(LucideIcons.menu),
+          label: 'Menu',
         ),
       ],
     );

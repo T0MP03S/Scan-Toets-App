@@ -119,42 +119,52 @@ class _ScanScreenState extends State<ScanScreen> {
     }
 
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-    if (picked == null) return;
+    final remaining = 4 - _pages.length;
+    final picked = await picker.pickMultiImage(imageQuality: 85, limit: remaining);
+    if (picked.isEmpty) return;
 
-    final bytes = await picked.readAsBytes();
-    final name = picked.name;
+    final toUpload = picked.take(remaining).toList();
 
     setState(() => _isUploading = true);
 
-    try {
-      final api = context.read<ApiService>();
-      final uri = Uri.parse('${api.baseUrl}/scan/upload');
-      final request = http.MultipartRequest('POST', uri);
-      request.headers['Authorization'] = 'Bearer ${api.token}';
-      request.files.add(http.MultipartFile.fromBytes(
-        'file',
-        bytes,
-        filename: name,
-        contentType: MediaType('image', name.toLowerCase().endsWith('.png') ? 'png' : 'jpeg'),
-      ));
+    int uploaded = 0;
+    for (final image in toUpload) {
+      if (_pages.length >= 4) break;
+      try {
+        final bytes = await image.readAsBytes();
+        final name = image.name;
+        final api = context.read<ApiService>();
+        final uri = Uri.parse('${api.baseUrl}/scan/upload');
+        final request = http.MultipartRequest('POST', uri);
+        request.headers['Authorization'] = 'Bearer ${api.token}';
+        request.files.add(http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: name,
+          contentType: MediaType('image', name.toLowerCase().endsWith('.png') ? 'png' : 'jpeg'),
+        ));
 
-      final response = await request.send();
-      final body = await response.stream.bytesToString();
+        final response = await request.send();
+        final body = await response.stream.bytesToString();
 
-      if (response.statusCode == 200) {
-        final json = _parseJson(body);
-        setState(() {
-          _pages.add(_PagePhoto(filename: json['filename'], bytes: bytes));
-        });
-      } else {
-        if (mounted) showAppSnackBar(context, 'Upload mislukt', type: SnackBarType.error);
+        if (response.statusCode == 200) {
+          final json = _parseJson(body);
+          setState(() {
+            _pages.add(_PagePhoto(filename: json['filename'], bytes: bytes));
+          });
+          uploaded++;
+        } else {
+          if (mounted) showAppSnackBar(context, 'Upload mislukt voor foto ${uploaded + 1}', type: SnackBarType.error);
+        }
+      } catch (e) {
+        if (mounted) showAppSnackBar(context, 'Upload fout: $e', type: SnackBarType.error);
       }
-    } catch (e) {
-      if (mounted) showAppSnackBar(context, 'Upload fout: $e', type: SnackBarType.error);
     }
 
-    if (mounted) setState(() => _isUploading = false);
+    if (mounted) {
+      setState(() => _isUploading = false);
+      if (uploaded > 1) showAppSnackBar(context, '$uploaded foto\'s geüpload', type: SnackBarType.success);
+    }
   }
 
   Future<void> _gradeCurrentStudent() async {
@@ -486,7 +496,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     icon: _isUploading
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(LucideIcons.plus, size: 16),
-                    label: Text(_pages.isEmpty ? 'Foto uploaden' : 'Nog een pagina'),
+                    label: Text(_pages.isEmpty ? 'Foto\'s uploaden' : 'Meer pagina\'s toevoegen'),
                   ),
                 ),
               if (_pages.isNotEmpty) ...[
