@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:toets_scan_app/config/theme.dart';
 import 'package:toets_scan_app/services/api_service.dart';
 import 'package:toets_scan_app/widgets/snackbar_widget.dart';
+import 'package:toets_scan_app/screens/resultaat_detail_screen.dart';
 
 class ToetsAnalyseScreen extends StatefulWidget {
   final int toetsId;
@@ -119,49 +120,56 @@ class _ToetsAnalyseScreenState extends State<ToetsAnalyseScreen> {
           // Per-question analysis
           if (vraagAnalyse.isNotEmpty) ...[
             const Text('Analyse per vraag', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text('Tik op een vraag voor details', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
             const SizedBox(height: 12),
             ...vraagAnalyse.map((v) {
               final pct = v['correct_percentage'] as int? ?? 0;
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: _pctColor(pct).withValues(alpha: 0.1),
-                        radius: 16,
-                        child: Text('${v['vraag_nummer']}', style: TextStyle(color: _pctColor(pct), fontWeight: FontWeight.w700, fontSize: 13)),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text('$pct% goed', style: TextStyle(fontWeight: FontWeight.w600, color: _pctColor(pct))),
-                                Text('  (${v['correct']}/${v['totaal']})', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(3),
-                              child: LinearProgressIndicator(
-                                value: pct / 100,
-                                backgroundColor: AppColors.textSecondary.withValues(alpha: 0.1),
-                                color: _pctColor(pct),
-                                minHeight: 6,
-                              ),
-                            ),
-                            if (v['meest_gemaakte_fout'] != null) ...[
-                              const SizedBox(height: 4),
-                              Text('Meest gemaakte fout: ${v['meest_gemaakte_fout']}', style: const TextStyle(fontSize: 12, color: AppColors.error)),
-                            ],
-                          ],
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => _showVraagDetail(v['vraag_nummer'] as int),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: _pctColor(pct).withValues(alpha: 0.1),
+                          radius: 16,
+                          child: Text('${v['vraag_nummer']}', style: TextStyle(color: _pctColor(pct), fontWeight: FontWeight.w700, fontSize: 13)),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text('$pct% goed', style: TextStyle(fontWeight: FontWeight.w600, color: _pctColor(pct))),
+                                  Text('  (${v['correct']}/${v['totaal']})', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: LinearProgressIndicator(
+                                  value: pct / 100,
+                                  backgroundColor: AppColors.textSecondary.withValues(alpha: 0.1),
+                                  color: _pctColor(pct),
+                                  minHeight: 6,
+                                ),
+                              ),
+                              if (v['meest_gemaakte_fout'] != null) ...[
+                                const SizedBox(height: 4),
+                                Text('Meest gemaakte fout: ${v['meest_gemaakte_fout']}', style: const TextStyle(fontSize: 12, color: AppColors.error)),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -176,40 +184,51 @@ class _ToetsAnalyseScreenState extends State<ToetsAnalyseScreen> {
             final r = resultaten[i];
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: _gradeColor(r['cijfer']).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${(r['cijfer'] as num?)?.toStringAsFixed(1) ?? '-'}',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: _gradeColor(r['cijfer'])),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: r['resultaat_id'] != null
+                    ? () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ResultaatDetailScreen(resultaatId: r['resultaat_id']),
+                          ),
+                        ).then((_) => _load())
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: _gradeColor(r['cijfer']).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${(r['cijfer'] as num?)?.toStringAsFixed(1) ?? '-'}',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: _gradeColor(r['cijfer'])),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(r['leerling'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
-                          Text('${r['score'] ?? 0}/${r['max_score'] ?? 0} punten', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                        ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(r['leerling'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
+                            Text('${r['score'] ?? 0}/${r['max_score'] ?? 0} punten', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                          ],
+                        ),
                       ),
-                    ),
-                    if (r['confidence'] != null && (r['confidence'] as num) < 0.8)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: Icon(LucideIcons.alertTriangle, size: 16, color: AppColors.warning),
-                      ),
-                  ],
+                      if (r['confidence'] != null && (r['confidence'] as num) < 0.8)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(LucideIcons.alertTriangle, size: 16, color: AppColors.warning),
+                        ),
+                      const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -299,5 +318,127 @@ class _ToetsAnalyseScreenState extends State<ToetsAnalyseScreen> {
     if (pct >= 75) return AppColors.success;
     if (pct >= 50) return AppColors.warning;
     return AppColors.error;
+  }
+
+  Future<void> _showVraagDetail(int vraagNummer) async {
+    try {
+      final api = context.read<ApiService>();
+      final data = await api.get('/dashboard/toets-analyse/${widget.toetsId}/vraag/$vraagNummer');
+
+      if (!mounted) return;
+
+      final goed = List<Map<String, dynamic>>.from(data['goed'] ?? []);
+      final fout = List<Map<String, dynamic>>.from(data['fout'] ?? []);
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (ctx) => DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.3,
+          expand: false,
+          builder: (_, scrollController) => Column(
+            children: [
+              Container(
+                width: 40, height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(
+                  children: [
+                    Text('Vraag $vraagNummer', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    const Spacer(),
+                    Text('${goed.length + fout.length} leerlingen', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  children: [
+                    if (fout.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        child: Text('Fout (${fout.length})', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.error)),
+                      ),
+                      ...fout.map((f) => Card(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.of(ctx).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ResultaatDetailScreen(resultaatId: f['resultaat_id']),
+                              ),
+                            ).then((_) => _load());
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.x, size: 16, color: AppColors.error),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(f['leerling'], style: const TextStyle(fontWeight: FontWeight.w500)),
+                                      Text('Antwoord: ${f['gegeven_antwoord']}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                      if (f['feedback'] != null && (f['feedback'] as String).isNotEmpty)
+                                        Text(f['feedback'], style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic)),
+                                    ],
+                                  ),
+                                ),
+                                Text('${f['behaalde_punten']}/${f['max_punten']}',
+                                    style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.error, fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )),
+                    ],
+                    if (goed.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 8),
+                        child: Text('Goed (${goed.length})', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.success)),
+                      ),
+                      ...goed.map((g) => Card(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              const Icon(LucideIcons.check, size: 16, color: AppColors.success),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(g['leerling'], style: const TextStyle(fontWeight: FontWeight.w500)),
+                              ),
+                              Text('${g['behaalde_punten']}/${g['max_punten']}',
+                                  style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.success, fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                      )),
+                    ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) showAppSnackBar(context, e.toString(), type: SnackBarType.error);
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:toets_scan_app/config/theme.dart';
 import 'package:toets_scan_app/models/klas_model.dart';
 import 'package:toets_scan_app/services/api_service.dart';
 import 'package:toets_scan_app/widgets/snackbar_widget.dart';
+import 'package:toets_scan_app/screens/leerling_profiel_screen.dart';
 
 class LeerlingenScreen extends StatefulWidget {
   final KlasModel klas;
@@ -280,38 +281,50 @@ class _LeerlingenScreenState extends State<LeerlingenScreen> {
           final leerling = _leerlingen[index];
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                    radius: 20,
-                    child: Text(
-                      '${leerling.voornaam[0]}${leerling.achternaam[0]}'.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => LeerlingProfielScreen(
+                    klasId: widget.klas.id,
+                    leerlingId: leerling.id,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      radius: 20,
+                      child: Text(
+                        '${leerling.voornaam[0]}${leerling.achternaam[0]}'.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      leerling.volledigeNaam,
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        leerling.volledigeNaam,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.pencil, size: 16, color: AppColors.textSecondary),
-                    onPressed: () => _showEditDialog(leerling),
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.error),
-                    onPressed: () => _confirmDelete(leerling),
-                  ),
-                ],
+                    IconButton(
+                      icon: const Icon(LucideIcons.pencil, size: 16, color: AppColors.textSecondary),
+                      onPressed: () => _showEditDialog(leerling),
+                    ),
+                    IconButton(
+                      icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.error),
+                      onPressed: () => _confirmDelete(leerling),
+                    ),
+                    const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
+                  ],
+                ),
               ),
             ),
           );

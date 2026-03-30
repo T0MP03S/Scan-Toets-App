@@ -168,14 +168,16 @@ Retourneer ALLEEN geldige JSON in dit formaat:
   "max_score": {totaal_punten},
   "cijfer": 8.5,
   "confidence": 0.92,
-  "opmerkingen": "optionele algemene opmerkingen"
+  "opmerkingen": "optionele algemene opmerkingen",
+  "samenvatting": "Korte samenvatting (2-3 zinnen) van wat deze leerling moet verbeteren, gebaseerd op de gemaakte fouten."
 }}
 
 Regels:
 - confidence is een getal tussen 0.0 en 1.0 (hoe zeker je bent)
 - Als je een antwoord niet kunt lezen, geef confidence < 0.5 voor die vraag
 - Het cijfer is op een schaal van 1 tot 10 (Nederlands schoolsysteem)
-- Wees streng maar eerlijk bij het nakijken"""
+- Wees streng maar eerlijk bij het nakijken
+- De samenvatting moet concreet en bruikbaar zijn voor de leerkracht"""
 
 
 def _validate_and_enrich(result: dict, vragen: list[dict], totaal_punten: int) -> dict:
@@ -199,5 +201,8 @@ def _validate_and_enrich(result: dict, vragen: list[dict], totaal_punten: int) -
 
     if "confidence" not in result:
         result["confidence"] = 0.5
+
+    if "samenvatting" not in result:
+        result["samenvatting"] = ""
 
     return result

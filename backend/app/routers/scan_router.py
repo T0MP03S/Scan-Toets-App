@@ -277,6 +277,69 @@ async def get_resultaat(
     }
 
 
+class VraagUpdateRequest(BaseModel):
+    vraag_nummer: int
+    behaalde_punten: float
+    feedback: str | None = None
+
+
+@router.put("/resultaat/{resultaat_id}/vraag")
+async def update_vraag_score(
+    resultaat_id: int,
+    data: VraagUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Update a single question's score within a result. Recalculates totals."""
+    result = await db.execute(
+        select(Resultaat)
+        .join(Toets, Toets.id == Resultaat.toets_id)
+        .where(Resultaat.id == resultaat_id, Toets.docent_id == current_user.id)
+    )
+    resultaat = result.scalar_one_or_none()
+    if not resultaat:
+        raise HTTPException(status_code=404, detail="Resultaat niet gevonden")
+
+    feedback = resultaat.feedback_json or {}
+    resultaten_list = feedback.get("resultaten", [])
+
+    found = False
+    for vr in resultaten_list:
+        if vr.get("vraag_nummer") == data.vraag_nummer:
+            vr["behaalde_punten"] = data.behaalde_punten
+            vr["is_correct"] = data.behaalde_punten >= vr.get("max_punten", 1)
+            if data.feedback is not None:
+                vr["feedback"] = data.feedback
+            found = True
+            break
+
+    if not found:
+        raise HTTPException(status_code=404, detail="Vraag niet gevonden in resultaat")
+
+    # Recalculate totals
+    new_score = sum(vr.get("behaalde_punten", 0) for vr in resultaten_list)
+    max_score = sum(vr.get("max_punten", 0) for vr in resultaten_list)
+    new_cijfer = round(1 + 9 * (new_score / max_score), 1) if max_score > 0 else 1.0
+
+    feedback["resultaten"] = resultaten_list
+    feedback["totaal_score"] = new_score
+    resultaat.feedback_json = feedback
+    resultaat.score = int(new_score)
+    resultaat.cijfer = new_cijfer
+    resultaat.is_overruled = True
+
+    await db.flush()
+    await db.refresh(resultaat)
+
+    return {
+        "id": resultaat.id,
+        "cijfer": resultaat.cijfer,
+        "score": resultaat.score,
+        "max_score": resultaat.max_score,
+        "feedback": resultaat.feedback_json,
+    }
+
+
 # ── Helpers ───────────────────────────────────────────────────
 
 async def _get_owned_toets(db: AsyncSession, toets_id: int, docent_id: int) -> Toets:

@@ -2,6 +2,48 @@
 
 Alle wijzigingen aan het Toets Scan App project worden hier bijgehouden.
 
+## [0.8.0] - 2026-03-30
+
+### Fase 7 — Leerling Profiel, Resultaat Review & AI Optimalisatie
+
+**Nieuwe features:**
+- **Leerling profiel**: klik op een leerling in de klassenlijst voor volledig overzicht
+  - Persoonlijke info (naam, klas, leerkracht)
+  - Cijferverloop grafiek (lijndiagram)
+  - Volledige cijferlijst met doorklik naar detail
+  - Werkpunten: AI-gegenereerde samenvatting per toets van wat het kind moet verbeteren
+  - Notitieblad: leerkracht kan vrij typen, wordt automatisch opgeslagen
+- **Resultaat detail**: klik op een resultaat om per vraag te bekijken
+  - Per vraag: gegeven antwoord, punten, feedback van AI
+  - Handmatig aanpassen: tik op een vraag om punten/feedback te wijzigen
+  - Cijfer wordt automatisch herberekend na aanpassing
+  - AI samenvatting zichtbaar per resultaat
+- **Vraag drill-down**: klik op een vraag in toets-analyse
+  - Ziet wie de vraag goed/fout had
+  - Per leerling: gegeven antwoord, punten, feedback
+  - Doorklikkbaar naar het resultaat van die leerling
+- **Resultaten in analyse zijn klikbaar**: navigeer direct naar resultaat detail
+
+**AI optimalisatie:**
+- Model gewijzigd van `gemini-3-flash-preview` naar `gemini-2.0-flash` (sneller, goedkoper, production-ready)
+- Beeldcompressie: foto's worden verkleind naar max 1536px breed en JPEG quality 80 (minder tokens)
+- Samenvatting toegevoegd aan grading prompt: "waar moet deze leerling aan werken" — komt in dezelfde API call (geen extra kosten)
+
+**Backend endpoints:**
+- `GET /klassen/{id}/leerlingen/{id}/profiel` — volledig leerling profiel
+- `PUT /klassen/{id}/leerlingen/{id}/notities` — notities opslaan
+- `PUT /scan/resultaat/{id}/vraag` — individuele vraag score aanpassen
+- `GET /dashboard/toets-analyse/{id}/vraag/{nr}` — per-vraag breakdown
+- Resultaten in toets-analyse bevatten nu `resultaat_id` en `leerling_id`
+
+**Database:**
+- `notities` veld toegevoegd aan `leerlingen` tabel (Text, nullable)
+
+**Mobiel menu (vorige patch):**
+- 5e "Menu" knop in bottom navigation bar
+- Bottom sheet met gebruikersnaam, email en uitlogknop
+- Meerdere foto's tegelijk uploaden in scan flow
+
 ## [0.7.2] - 2026-03-27
 
 ### Nieuwe features

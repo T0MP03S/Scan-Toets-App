@@ -176,6 +176,8 @@ async def get_toets_analyse(
 
     resultaten_list = [
         {
+            "resultaat_id": r.id,
+            "leerling_id": r.leerling_id,
             "leerling": f"{voornaam} {achternaam}",
             "cijfer": r.cijfer,
             "score": r.score,
@@ -195,4 +197,58 @@ async def get_toets_analyse(
         "score_verdeling": verdeling,
         "resultaten": resultaten_list,
         "vraag_analyse": vraag_analyse,
+    }
+
+
+@router.get("/toets-analyse/{toets_id}/vraag/{vraag_nummer}")
+async def get_vraag_detail(
+    toets_id: int,
+    vraag_nummer: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get per-student breakdown for a specific question."""
+    toets_result = await db.execute(
+        select(Toets).where(Toets.id == toets_id, Toets.docent_id == current_user.id)
+    )
+    toets = toets_result.scalar_one_or_none()
+    if not toets:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Toets niet gevonden")
+
+    resultaten_result = await db.execute(
+        select(Resultaat, Leerling.voornaam, Leerling.achternaam)
+        .join(Leerling, Leerling.id == Resultaat.leerling_id)
+        .where(Resultaat.toets_id == toets_id)
+        .order_by(Leerling.achternaam, Leerling.voornaam)
+    )
+
+    goed = []
+    fout = []
+    for r, voornaam, achternaam in resultaten_result.all():
+        if not r.feedback_json or "resultaten" not in r.feedback_json:
+            continue
+        for vr in r.feedback_json["resultaten"]:
+            if vr.get("vraag_nummer") == vraag_nummer:
+                entry = {
+                    "leerling": f"{voornaam} {achternaam}",
+                    "leerling_id": r.leerling_id,
+                    "resultaat_id": r.id,
+                    "gegeven_antwoord": vr.get("gegeven_antwoord", "?"),
+                    "behaalde_punten": vr.get("behaalde_punten", 0),
+                    "max_punten": vr.get("max_punten", 0),
+                    "feedback": vr.get("feedback", ""),
+                }
+                if vr.get("is_correct"):
+                    goed.append(entry)
+                else:
+                    fout.append(entry)
+                break
+
+    return {
+        "vraag_nummer": vraag_nummer,
+        "totaal": len(goed) + len(fout),
+        "correct": len(goed),
+        "goed": goed,
+        "fout": fout,
     }
