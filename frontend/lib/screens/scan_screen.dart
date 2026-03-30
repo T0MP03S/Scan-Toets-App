@@ -170,25 +170,37 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _gradeCurrentStudent() async {
     if (_pages.isEmpty || _currentLeerling == null || _selectedToets == null) return;
 
-    setState(() => _isGrading = true);
+    final leerlingNaam = '${_currentLeerling!['voornaam']} ${_currentLeerling!['achternaam']}';
+    final filenames = _pages.map((p) => p.filename).toList();
 
-    try {
-      final api = context.read<ApiService>();
-      final result = await api.post('/scan/grade', {
-        'toets_id': _selectedToets!.id,
-        'leerling_id': _currentLeerling!['leerling_id'],
-        'filenames': _pages.map((p) => p.filename).toList(),
-      });
+    // Start grading in background (unawaited)
+    final api = context.read<ApiService>();
+    api.post('/scan/grade', {
+      'toets_id': _selectedToets!.id,
+      'leerling_id': _currentLeerling!['leerling_id'],
+      'filenames': filenames,
+    }).then((_) {
+      if (mounted) {
+        showAppSnackBar(context, '$leerlingNaam: nakijken voltooid!', type: SnackBarType.success);
+        _loadScanStatus();
+      }
+    }).catchError((e) {
+      if (mounted) {
+        showAppSnackBar(context, '$leerlingNaam: nakijken mislukt - $e', type: SnackBarType.error);
+      }
+    });
 
+    // Immediately return to student list
+    if (mounted) {
+      showAppSnackBar(context, '$leerlingNaam wordt nagekeken...', type: SnackBarType.info);
       setState(() {
-        _gradeResult = result;
-        _step = 3;
+        _currentLeerling = null;
+        _pages = [];
+        _gradeResult = null;
+        _step = 1;
       });
-    } catch (e) {
-      if (mounted) showAppSnackBar(context, 'Nakijken mislukt: $e', type: SnackBarType.error);
+      _loadScanStatus();
     }
-
-    if (mounted) setState(() => _isGrading = false);
   }
 
   void _nextStudent() {
@@ -440,20 +452,35 @@ class _ScanScreenState extends State<ScanScreen> {
           Text('Pagina\'s (${_pages.length}/4)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
 
+          // Foto toevoegen knop bovenaan
+          if (_pages.length < 4)
+            OutlinedButton.icon(
+              onPressed: _isUploading ? null : _pickImage,
+              icon: _isUploading
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(LucideIcons.plus, size: 16),
+              label: Text(_pages.isEmpty ? 'Foto\'s uploaden' : 'Meer pagina\'s toevoegen'),
+            ),
+
+          if (_pages.length < 4) const SizedBox(height: 12),
+
+          // Foto lijst
           if (_pages.isEmpty)
             Card(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: _isUploading ? null : _pickImage,
-                child: SizedBox(
-                  height: 200,
-                  width: double.infinity,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.border, width: 2, strokeAlign: BorderSide.strokeAlignInside),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(LucideIcons.camera, size: 40, color: AppColors.textSecondary.withValues(alpha: 0.5)),
                       const SizedBox(height: 12),
-                      const Text('Tik om een foto te uploaden', style: TextStyle(color: AppColors.textSecondary)),
+                      const Text('Nog geen foto\'s', style: TextStyle(color: AppColors.textSecondary)),
                     ],
                   ),
                 ),
@@ -485,37 +512,21 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             )),
 
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              if (_pages.length < 4)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _isUploading ? null : _pickImage,
-                    icon: _isUploading
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(LucideIcons.plus, size: 16),
-                    label: Text(_pages.isEmpty ? 'Foto\'s uploaden' : 'Meer pagina\'s toevoegen'),
-                  ),
-                ),
-              if (_pages.isNotEmpty) ...[
-                const SizedBox(width: 12),
-                Expanded(
-                  child: SizedBox(
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: _isGrading ? null : _gradeCurrentStudent,
-                      icon: _isGrading
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(LucideIcons.sparkles, size: 16),
-                      label: Text(_isGrading ? 'Bezig met nakijken...' : 'Nakijken'),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+          // Nakijken knop onderaan
+          if (_pages.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: _isGrading ? null : _gradeCurrentStudent,
+                icon: _isGrading
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(LucideIcons.sparkles, size: 16),
+                label: Text(_isGrading ? 'Bezig met nakijken...' : 'Nakijken'),
+              ),
+            ),
+          ],
         ],
       ),
     );
